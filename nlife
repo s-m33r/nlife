@@ -1,0 +1,142 @@
+#!/usr/bin/python
+
+from random import randint
+import curses
+import time
+
+# initializing curses
+stdscr = curses.initscr() # initializing curses
+curses.noecho()
+curses.cbreak()
+stdscr.keypad(True)
+
+y_limit, x_limit = stdscr.getmaxyx()
+y_limit -= 1
+x_limit -= 1
+
+# control variables
+delay_s = 0.8
+
+alive_chr = '0'
+dead_chr = ' '
+
+####################
+
+grid = list()
+grid_next = list()
+
+def randomGrid():
+    """generate a random grid"""
+    for count in range(y_limit):
+        line = []
+        for i in range(x_limit):
+            if randint(0,1) == 1:
+                line.append(alive_chr)
+            else:
+                line.append(dead_chr)
+    
+        grid.append(line)
+
+def countLiveNeighbours(x,y):
+    """return the number of live neighbours for a given co-ordinate"""
+
+    neighbours = []
+
+    dia1 = (x+1, y-1)
+    up = (x, y-1)
+    dia2 = (x-1, y-1)
+    left = (x-1, y)
+    dia3 = (x-1, y+1)
+    down = (x, y+1)
+    dia4 = (x+1, y+1)
+    right = (x+1,y)
+    
+    neighbours = [dia1,up,dia2,left,dia3,down,dia4,right]
+
+    n = 0 # number of neighbours to be returned
+    
+    invalid = False
+    for i in neighbours:
+
+        for j in i:
+            if (j < 0):
+                invalid = True
+                break
+        if i[0] > (x_limit - 1):
+            invalid = True
+        if i[1] > (y_limit - 1):
+            invalid = True
+
+        if invalid: # jump to next iteration of loop if invalid
+            #print(f"{i} X")
+            invalid = False
+            continue
+    
+        #print(i)
+        if grid[i[1]][i[0]] == alive_chr:
+            n += 1
+    
+    return n
+
+def renderGrid(grd):
+    """render grid on curses display"""
+    stdscr.clear()
+    
+    frame = ""
+    for i in grd:
+        frame += ''.join(i)
+        frame += '\n'
+    
+    stdscr.addstr(frame)
+    stdscr.refresh()
+
+# startup messages
+stdscr.clear()
+stdscr.addstr("Conway's Game Of Life\nCtrl+C to exit. Press any key to continue.\n")
+stdscr.getch()
+
+# main game loop
+randomGrid()
+
+renderGrid(grid)
+
+cursor_x = 0
+cursor_y = 0
+
+line = ""
+
+try:
+    while True:
+        if cursor_x >= x_limit:
+            grid_next.append(line)
+            line = ""
+            cursor_y += 1
+            cursor_x = 0
+    
+        if cursor_y >= y_limit:
+            grid = []
+    
+            time.sleep(delay_s)
+            for i in grid_next:
+                grid.append(i)
+    
+            renderGrid(grid_next)
+    
+            grid_next = []
+    
+            cursor_x, cursor_y = 0, 0
+    
+        alive = countLiveNeighbours(cursor_x, cursor_y)
+    
+        # logic
+        if grid[cursor_y][cursor_x] == alive_chr and (alive == 2 or alive == 3):
+            line += alive_chr
+        elif grid[cursor_y][cursor_x] == dead_chr and (alive == 3):
+            line += alive_chr
+        else:
+            line += dead_chr
+    
+        cursor_x += 1
+
+except KeyboardInterrupt:
+    curses.endwin()
