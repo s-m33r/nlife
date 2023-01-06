@@ -3,6 +3,50 @@
 from random import randint
 import curses
 import time
+import sys
+
+# help text variable
+helpTxt = """
+nlife - Conway's Game Of Life with ncurses
+
+arguments:
+    --alive=<value>   | set the character used for living cells
+    --dead=<value>    | set the character used for dead cells
+
+    --delay=<seconds> | set the delay between generations
+    --help            | print this help text
+
+source:
+    https://github.com/s-m33r/nlife
+"""
+
+# process command line arguments
+try:
+    args = [ arg.split('=') for arg in sys.argv ][1:]
+except: # only error that can <probably> be there is that there are no args. just pass then
+    pass
+
+# control variables
+delay_s = 0.8
+
+alive_chr = '0'
+dead_chr = ' '
+
+if len(args) != 0:
+    for arg in args:
+        
+        if arg[0] == "--alive": alive_chr = arg[1][0]
+        elif arg[0] == "--dead": dead_chr = arg[1][0]
+
+        elif arg[0] == "--delay":
+            delay_s = float(arg[1])
+            if (delay_s > 10):
+                delay_s = 10
+
+        elif arg[0] == "--help":
+            print(helpTxt)
+            exit()
+
 
 # initializing curses
 stdscr = curses.initscr() # initializing curses
@@ -14,11 +58,6 @@ y_limit, x_limit = stdscr.getmaxyx()
 y_limit -= 1
 x_limit -= 1
 
-# control variables
-delay_s = 0.8
-
-alive_chr = '0'
-dead_chr = ' '
 
 ####################
 
