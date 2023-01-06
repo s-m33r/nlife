@@ -1,5 +1,19 @@
 ## nlife - Conway's Game Of Life in the terminal
 
+```
+nlife - Conway's Game Of Life with ncurses
+
+arguments:
+    --alive=<value>   | set the character used for living cells
+    --dead=<value>    | set the character used for dead cells
+
+    --delay=<seconds> | set the delay between generations
+    --help            | print this help text
+
+source:
+    https://github.com/s-m33r/nlife
+```
+
 Learn more about [the game of life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).  
 
 Rules:  
